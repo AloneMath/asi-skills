@@ -27,12 +27,21 @@ Reading secret files is blocked too, because tool output is sent to the model pr
 Requires Python 3.10+ and no third-party packages.
 
 ```powershell
-cd D:\Code\asi-skills
+asi skills install D:\Code\asi-skills
+asi skills status
+```
+
+`install` first runs the guard against a known-bad call (reading `.env`) and a known-good call (`cargo test`). Only if both behave correctly does it register the guard in `~/.asi/hooks.json`, which ASI Code loads in every new session without any environment variables. A guard that cannot start would deny every tool call, so an unverified install is refused. Remove it with `asi skills uninstall`.
+
+Use `--python <path>` if `python` on PATH is not the interpreter you want.
+
+ASI Code also has built-in credential file protection that works without this guard; the guard adds shell-command rules and secret-content checks on top.
+
+Manual setup (older ASI Code without `asi skills`):
+
+```powershell
 python -m asi_skills install --out D:\Code\asi-skills\.asi\hooks.json
-# then set the variables it prints, e.g.:
-$env:ASI_HOOKS_ENABLED = '1'
-$env:ASI_HOOK_CONFIG_PATH = 'D:\Code\asi-skills\.asi\hooks.json'
-$env:PYTHONPATH = 'D:\Code\asi-skills'
+# then set the variables it prints
 ```
 
 Start ASI Code in the same shell. A blocked call looks like:

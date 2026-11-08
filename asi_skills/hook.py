@@ -11,6 +11,11 @@ import json
 import os
 import sys
 
+if __package__ in (None, ""):
+    # Run as a file path (how `asi skills install` registers it): make the
+    # repository root importable so no PYTHONPATH setup is needed.
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from asi_skills.guard import Decision, evaluate
 
 

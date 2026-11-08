@@ -46,6 +46,19 @@ class HookTests(unittest.TestCase):
         self.assertEqual(set(out), {"allow", "reason"})
         self.assertFalse(out["allow"])
 
+    def test_hook_runs_as_plain_script_path(self):
+        # `asi skills install` registers `python <repo>/asi_skills/hook.py`.
+        import subprocess
+        import sys
+        from pathlib import Path
+
+        script = Path(__file__).resolve().parent.parent / "asi_skills" / "hook.py"
+        env = {**os.environ, "ASI_HOOK_INPUT_JSON": json.dumps({"tool": "read_file", "args": ".env"})}
+        env.pop("PYTHONPATH", None)
+        out = subprocess.run([sys.executable, str(script)], env=env, capture_output=True, text=True, cwd=tempfile.gettempdir())
+        self.assertEqual(out.returncode, 0, out.stderr)
+        self.assertFalse(json.loads(out.stdout)["allow"])
+
     def test_install_config_is_runnable_by_asi_shell(self):
         # ASI runs hooks via PowerShell on Windows: a quoted exe path must use
         # the call operator or every hook invocation fails (and fails closed).
